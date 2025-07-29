@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+google-generativeai
+firebase-admin
+pyrebase4
+python-jose[cryptography]
+passlib[bcrypt]
