@@ -1,0 +1,85 @@
+# --- Byte-compiled / optimized / C extensions ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- Virtual Environments ---
+# Exclude all virtual environment folders.
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+venv.bak
+
+# --- Sensitive Information ---
+# Exclude environment variable files.
+# NEVER commit your .env file containing secrets.
+backend/.env
+
+# Exclude Firebase Admin SDK credentials file.
+# NEVER commit your service account key.
+firebase_credentials.json
+**/firebase_credentials.json
+
+# --- Distribution / packaging ---
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Test & Coverage Reports ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.tox/
+
+# --- IDE / Editor Files ---
+# JetBrains/PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Vim
+*.swp
+*.swo
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# --- Docker ---
+# Ignore local docker-compose overrides
+docker-compose.override.yml
+
+# --- OS-generated files ---
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
