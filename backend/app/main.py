@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config.firebase_config import initialize_firebase
+initialize_firebase()
 from .api import auth, conversation, chat
 
 app = FastAPI(
@@ -10,9 +11,7 @@ app = FastAPI(
 )
 
 # Initialize Firebase Admin SDK on startup
-@app.on_event("startup")
-async def startup_event():
-    initialize_firebase()
+
 
 # Configure CORS
 origins = [

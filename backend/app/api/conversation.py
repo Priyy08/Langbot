@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from ..models.conversation import ConversationCreate, ConversationUpdate, ConversationInDB
 from ..services.firebase_service import db
 from ..services.auth_service import get_current_user

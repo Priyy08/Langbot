@@ -1,9 +1,13 @@
+# CORRECTED AND FINAL VERSION of auth_service.py
+
 from firebase_admin import auth
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from .firebase_service import db
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+# Use HTTPBearer, which simply looks for a "Bearer <token>" in the Authorization header.
+# This is the correct scheme for our use case.
+bearer_scheme = HTTPBearer()
 
 def create_firebase_user(email, password, display_name):
     """Creates a user in Firebase Auth and a corresponding document in Firestore."""
@@ -14,7 +18,6 @@ def create_firebase_user(email, password, display_name):
             display_name=display_name
         )
         
-        # Create a user document in Firestore
         user_data = {
             "email": user.email,
             "display_name": user.display_name,
@@ -36,19 +39,29 @@ def create_firebase_user(email, password, display_name):
             detail=f"Failed to create user: {str(e)}"
         )
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
     """
     Dependency to get the current user from a Firebase ID token.
     Verifies the token and returns the decoded user claims.
     """
+    # The token is extracted from the 'credentials' part of the bearer scheme
+    token = creds.credentials
+    
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
     try:
-        # The check_revoked=True flag ensures that the token is not from a logged-out session.
+        # Verify the token with Firebase Admin SDK
         decoded_token = auth.verify_id_token(token, check_revoked=True)
         return decoded_token
     except auth.InvalidIdTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+            detail="Invalid authentication token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except auth.RevokedIdTokenError:

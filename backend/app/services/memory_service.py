@@ -3,6 +3,7 @@ from langchain_core.messages import BaseMessage, message_to_dict, messages_from_
 from typing import List
 from .firebase_service import db
 import datetime
+from google.cloud import firestore
 
 class FirestoreChatMessageHistory(BaseChatMessageHistory):
     """
@@ -40,11 +41,9 @@ class FirestoreChatMessageHistory(BaseChatMessageHistory):
 
     def add_message(self, message: BaseMessage) -> None:
         """Append a message to Firestore."""
-        message_dict = message_to_dict(message)
-        
         # LangChain message dict has 'type', we store it as 'role' in Firestore
-        role = message_dict.get('type', 'human')
-        content = message_dict.get('data', {}).get('content', '')
+        role = message.type
+        content = message.content
         
         self.collection.add({
             "conversation_id": self.conversation_id,

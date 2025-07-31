@@ -7,3 +7,4 @@ firebase-admin
 pyrebase4
 python-jose[cryptography]
 passlib[bcrypt]
+google-cloud-firestore

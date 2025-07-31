@@ -7,7 +7,7 @@ def show_chat_page():
     Renders the main chat interface, including the sidebar and chat window.
     """
     # Fetch conversations on first load after login
-    if not st.session_state.conversations:
+    if not st.session_state.get('conversations'):
         st.session_state.conversations = api_client.fetch_conversations()
         # If no active conversation, select the most recent one
         if not st.session_state.active_conversation_id and st.session_state.conversations:
@@ -56,4 +56,3 @@ def show_chat_page():
         
         # Refresh sidebar to show updated last message timestamp
         st.session_state.conversations = api_client.fetch_conversations()
-        st.rerun()

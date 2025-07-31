@@ -23,6 +23,7 @@ backend/.env
 # NEVER commit your service account key.
 firebase_credentials.json
 **/firebase_credentials.json
+/app/config/firebase_credentials.json
 
 # --- Distribution / packaging ---
 .Python

@@ -1,32 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-from ..models.user import UserCreate, UserLogin
+# backend/app/api/auth.py
+# CORRECTED AND SIMPLIFIED VERSION
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from ..models.user import UserCreate  # UserLogin is no longer needed here
 from ..services.auth_service import create_firebase_user, get_current_user
 from firebase_admin import auth
-import pyrebase # Using pyrebase for client-side operations like sign-in
+
+# --- DELETED SECTION ---
+# We remove all imports and initializations related to `pyrebase`,
+# `settings`, and the `firebase_config` dictionary. The backend
+# does not need these client-side configurations.
+# import pyrebase
+# from ..config.settings import settings
+# -----------------------
 
 router = APIRouter()
 
-# You need to initialize pyrebase with your web app config
-# This is NOT the admin SDK. Get this from Firebase Console > Project Settings > General > Your web app
-# In a real app, this config would also be in settings.
-firebase_config = {
-    "apiKey": "YOUR_WEB_APP_API_KEY", # Replace
-    "authDomain": "YOUR_PROJECT_ID.firebaseapp.com", # Replace
-    "projectId": "YOUR_PROJECT_ID", # Replace
-    "storageBucket": "YOUR_PROJECT_ID.appspot.com", # Replace
-    "messagingSenderId": "YOUR_SENDER_ID", # Replace
-    "appId": "YOUR_APP_ID", # Replace
-    "databaseURL": ""
-}
-
-firebase = pyrebase.initialize_app(firebase_config)
-pyrebase_auth = firebase.auth()
-
+# --- THE LOGIN ENDPOINT IS REMOVED ---
+# The responsibility of logging in a user (exchanging email/password for a token)
+# belongs to the frontend client. The frontend will communicate directly with
+# Firebase Authentication services for this. The backend's role is to
+# protect its own endpoints by validating the token the frontend provides.
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate):
     """
-    Register a new user.
+    Register a new user using the secure Admin SDK.
+    This is a backend responsibility because it involves creating a new user record.
     """
     try:
         user = create_firebase_user(
@@ -36,28 +36,18 @@ async def register(user_data: UserCreate):
         )
         return {"message": "User created successfully", "uid": user.uid}
     except HTTPException as e:
+        # Re-raise known HTTP exceptions
         raise e
     except Exception as e:
+        # Catch any other unexpected errors
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.post("/login")
-async def login(user_data: UserLogin):
-    """
-    Log in a user and return an ID token.
-    """
-    try:
-        user = pyrebase_auth.sign_in_with_email_and_password(user_data.email, user_data.password)
-        # The idToken is the JWT you'll send to the client.
-        return {"token": user['idToken'], "uid": user['localId']}
-    except Exception as e:
-        # Pyrebase raises a generic exception with an error message in its body
-        raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @router.post("/logout")
 async def logout(current_user: dict = Depends(get_current_user)):
     """
-    Log out a user by revoking their refresh tokens.
+    Log out a user by revoking their refresh tokens via the Admin SDK.
+    This is a secure backend operation.
     """
     try:
         auth.revoke_refresh_tokens(current_user['uid'])
@@ -65,9 +55,12 @@ async def logout(current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to log out: {e}")
 
-@router.get("/me")
+
+@router.get("/me", summary="Get current user info")
 async def get_user_me(current_user: dict = Depends(get_current_user)):
     """
-    Get the current authenticated user's profile.
+    Get the current authenticated user's profile from their token.
+    This is a protected endpoint that implicitly verifies the token's validity.
+    It's useful for the frontend to check if its stored token is still active.
     """
     return {"uid": current_user['uid'], "email": current_user.get('email')}
