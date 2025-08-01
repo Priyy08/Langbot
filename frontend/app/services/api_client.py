@@ -93,7 +93,7 @@ def stream_chat_responses(conv_id: str, message: str):
         with requests.post(
             f"{API_BASE_URL}/chat/message",
             json=payload,
-            headers=auth_headers,  # <-- THIS IS THE FIX
+            headers=auth_headers, 
             stream=True
         ) as r:
             r.raise_for_status()
